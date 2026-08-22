@@ -2557,6 +2557,14 @@ class P
 			echo '<div id="page-content-wrapper">';
 			// Maintenance check
 			self::MaintenanceStuff();
+			// Print Success if set
+			if (isset($_GET['s']) && !empty($_GET['s'])) {
+				self::SuccessMessageStaccah($_GET['s']);
+			}
+			// Print Exception if set
+			if (isset($_GET['e']) && !empty($_GET['e'])) {
+				self::ExceptionMessageStaccah($_GET['e']);
+			}
 			echo '<p align="center"><font size=5><i class="fa fa-fast-backward"></i>	Rollback account</font></p>';
 			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
 			if (!$username) {
@@ -2616,6 +2624,14 @@ class P
 			echo '<div id="page-content-wrapper">';
 			// Maintenance check
 			self::MaintenanceStuff();
+			// Print Success if set
+			if (isset($_GET['s']) && !empty($_GET['s'])) {
+				self::SuccessMessageStaccah($_GET['s']);
+			}
+			// Print Exception if set
+			if (isset($_GET['e']) && !empty($_GET['e'])) {
+				self::ExceptionMessageStaccah($_GET['e']);
+			}
 			echo '<div class="container alert alert-danger" role="alert" style="width: 100%;"><p align="center"><b>Reminder:<br></b>Admins should not provide wipes for users who have not purchased supporter, unless it is warranted.</p></div>';
 			echo '<p align="center"><font size=5><i class="fa fa-eraser"></i>	Wipe account</font></p>';
 			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
