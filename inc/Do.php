@@ -743,91 +743,111 @@ class D
 				throw new Exception("You don't have enough permissions to wipe this account");
 			}
 
-			if ($_POST["gm"] == -1) { // All modes
-				$modes = ['std', 'taiko', 'ctb', 'mania'];
-			} else { // Single mode
-				if ($_POST["gm"] == 0) {
-					$modes = ['std'];
-				} else if ($_POST["gm"] == 1) {
-					$modes = ['taiko'];
-				} else if ($_POST["gm"] == 2) {
-					$modes = ['ctb'];
-				} else if ($_POST["gm"] == 3) {
-					$modes = ['mania'];
-				}
+			$gmMap = [
+				-1 => 'all gamemodes',
+				0 => 'osu!',
+				1 => 'osu!taiko',
+				2 => 'osu!catch',
+				3 => 'osu!mania',
+			];
+
+			$rxMap = [
+				0 => 'Vanilla',
+				1 => 'Relax',
+				2 => 'Autopilot',
+				3 => 'Vanilla, Relax and Autopilot',
+			];
+
+			$gm = intval($_POST["gm"]);
+			$rx = intval($_POST["rx"]);
+
+			if (!array_key_exists($gm, $gmMap) || !array_key_exists($rx, $rxMap)) {
+				throw new Exception('Invalid mode selected');
 			}
 
-			if ($_POST["rx"] == 1) {
-				$scores_table = "scores_relax";
-			} else if ($_POST["rx"] == 2) {
-				$scores_table = "scores_ap";
-			} else if ($_POST["rx"] == 0) {
-				$scores_table = "scores";
+			// Check mode constraints
+			if ($rx == 1 && $gm == 3) {
+				throw new Exception("Relax does not support mania");
 			}
+			if ($rx == 2 && $gm != 0 && $gm != -1) {
+				throw new Exception("Autopilot only supports standard");
+			}
+
+			$wipeText = sprintf("%s (%s)", $gmMap[$gm], $rxMap[$rx]);
+
+			$scores_table = ($rx == 1) ? "scores_relax" : (($rx == 2) ? "scores_ap" : "scores");
 
 			redisConnect();
 
 			// Delete scores
-			if ($_POST["gm"] == -1) {
-
-				if ($_POST["rx"] != 3) {
+			if ($gm == -1) {
+				if ($rx != 3) {
 					$GLOBALS['db']->execute('DELETE FROM ' . $scores_table . ' WHERE userid = ?', [$_POST['id']]);
 					foreach (range(0, 3) as $i) {
-						$GLOBALS["redis"]->publish("peppy:wipe", $_POST['id'] . ',' . $_POST['rx'] . ',' . $i);
+						$GLOBALS["redis"]->publish("peppy:wipe", $_POST['id'] . ',' . $rx . ',' . $i);
 					}
 				} else {
 					$dt = ['scores', 'scores_relax', 'scores_ap'];
 					foreach ($dt as $st) {
 						$GLOBALS['db']->execute('DELETE FROM ' . $st . ' WHERE userid = ?', [$_POST['id']]);
-						foreach (range(0, 3) as $i) {
-							foreach ([0, 1, 2] as $m) {
-								$GLOBALS["redis"]->publish("peppy:wipe", $_POST['id'] . ',' . $m . ',' . $i);
-							}
+					}
+					foreach (range(0, 3) as $i) {
+						foreach ([0, 1, 2] as $m) {
+							$GLOBALS["redis"]->publish("peppy:wipe", $_POST['id'] . ',' . $m . ',' . $i);
 						}
 					}
 				}
 			} else {
-				if ($_POST["rx"] == 3) {
-					$dt = ['scores', 'scores_relax', 'scores_ap'];
-					$ms = [0, 1, 2];
+				if ($rx == 3) {
+					$applicable = [
+						0 => ['tables' => ['scores', 'scores_relax', 'scores_ap'], 'modes' => [0, 1, 2]],
+						1 => ['tables' => ['scores', 'scores_relax'], 'modes' => [0, 1]],
+						2 => ['tables' => ['scores', 'scores_relax'], 'modes' => [0, 1]],
+						3 => ['tables' => ['scores'], 'modes' => [0]],
+					];
+					$dt = $applicable[$gm]['tables'];
+					$ms = $applicable[$gm]['modes'];
 				} else {
 					$dt = [$scores_table];
-					$ms = [$_POST["rx"]];
+					$ms = [$rx];
 				}
 
 				foreach ($dt as $st) {
 					// TODO: we should not be hard deleting scores, but either marking them as "inactive"
 					// or moving them to another table (e.g. insert into select * from ...)
-					$GLOBALS['db']->execute('DELETE FROM ' . $st . ' WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+					$GLOBALS['db']->execute('DELETE FROM ' . $st . ' WHERE userid = ? AND play_mode = ?', [$_POST['id'], $gm]);
 				}
 
 				foreach ($ms as $m) {
-					$GLOBALS["redis"]->publish("peppy:wipe", $_POST['id'] . ',' . $m . ',' . $_POST['gm']);
+					$GLOBALS["redis"]->publish("peppy:wipe", $_POST['id'] . ',' . $m . ',' . $gm);
 				}
 			}
 
 			// Next, on the new tables
-			if ($_POST["gm"] == -1) { // All modes
-				if ($_POST["rx"] == 0) {
+			if ($gm == -1) { // All modes
+				if ($rx == 0) {
 					$modeInts = [0, 1, 2, 3];
-				} else if ($_POST["rx"] == 1) {
+				} else if ($rx == 1) {
 					$modeInts = [4, 5, 6];
-				} else if ($_POST["rx"] == 2) {
+				} else if ($rx == 2) {
 					$modeInts = [8];
+				} else if ($rx == 3) {
+					$modeInts = [0, 1, 2, 3, 4, 5, 6, 8];
 				}
-			} else if ((0 <= $_POST["gm"]) && ($_POST["gm"] <= 3)) { // Single mode
-				if ($_POST["rx"] == 0) {
-					$modeInts = [$_POST["gm"]];
-				} else if ($_POST["rx"] == 1) {
-					if ($_POST["gm"] == 3) {
-						throw new Exception("Relax does not support mania");
-					}
-					$modeInts = [$_POST["gm"] + 4];
-				} else if ($_POST["rx"] == 2) {
-					if ($_POST["gm"] != 0) {
-						throw new Exception("Autopilot only supports standard");
-					}
-					$modeInts = [$_POST["gm"] + 8];
+			} else if ((0 <= $gm) && ($gm <= 3)) { // Single mode
+				if ($rx == 0) {
+					$modeInts = [$gm];
+				} else if ($rx == 1) {
+					$modeInts = [$gm + 4];
+				} else if ($rx == 2) {
+					$modeInts = [$gm + 8];
+				} else if ($rx == 3) {
+					$modeInts = [
+						0 => [0, 4, 8],
+						1 => [1, 5],
+						2 => [2, 6],
+						3 => [3],
+					][$gm];
 				}
 			}
 			foreach ($modeInts as $modeInt) {
@@ -851,18 +871,7 @@ class D
 
 			// RAP log
 			postWebhookMessage(sprintf("has wiped [%s](https://akatsuki.gg/u/%s)'s %s scores and stats.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $username, $_POST["id"], $wipeText, $_POST["id"]));
-			rapLog(sprintf("has wiped %s's account", $username));
-
-			// Done
-			$wipeText = "Vanilla";
-
-			if ($_POST["rx"] == 3) {
-				$wipeText = "Vanilla, Relax and Autopilot";
-			} else if ($_POST["rx"] == 2) {
-				$wipeText = "Autopilot";
-			} else if ($_POST["rx"] == 1) {
-				$wipeText = "Relax";
-			}
+			rapLog(sprintf("has wiped %s's %s scores and stats", $username, $wipeText));
 
 			redirectBack('index.php?p=102', 'User ' . $wipeText . ' scores and stats have been wiped!');
 		} catch (Exception $e) {

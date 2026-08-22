@@ -2649,6 +2649,7 @@ class P
 			<td>Akatsuki Mode</td>
 			<td>
 			<select name="rx" class="selectpicker" data-width="100%">
+				<option value="3">All</option>
 				<option value="0">Vanilla</option>
 				<option value="1">Relax</option>
 				<option value="2">Autopilot</option>
