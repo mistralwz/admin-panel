@@ -407,6 +407,10 @@ class D
 			// log this email address change to the users rap notes
 			appendNotes($_POST["id"], sprintf("Email address changed by admin '%s' (%s)", $_SESSION["username"], $_SESSION["userid"]));
 
+			$targetUsername = getUserUsername($_POST["id"]);
+			postWebhookMessage(sprintf("has changed [%s](https://akatsuki.gg/u/%s)'s email address.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $targetUsername, $_POST["id"], $_POST["id"]));
+			rapLog(sprintf("has changed %s's email address", $targetUsername));
+
 			// Done, redirect to success page
 			redirectBack('index.php?p=102', 'User email address changed!');
 		} catch (Exception $e) {

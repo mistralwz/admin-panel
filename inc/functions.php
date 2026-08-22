@@ -1596,15 +1596,13 @@ function giveDonor($userID, $months, $add = true, $premium = false)
 		$donorBadge = $GLOBALS["db"]->fetch("SELECT id FROM badges WHERE name = 'supporter' OR name = 'support' LIMIT 1");
 	}
 
-	if (!$donorBadge) {
-		throw new Exception("There's no such badge in the database.");
-	}
+	if ($donorBadge) {
+		// Check if they already have the supporter/premium badge
+		$hasAlready = $GLOBALS["db"]->fetch("SELECT id FROM user_badges WHERE user = ? AND badge = ? LIMIT 1", [$userID, $donorBadge["id"]]);
 
-	// Check if they already have the supporter/premium badge
-	$hasAlready = $GLOBALS["db"]->fetch("SELECT id FROM user_badges WHERE user = ? AND badge = ? LIMIT 1", [$userID, $donorBadge["id"]]);
-
-	if (!$hasAlready) { // Add their supporter/premium badge
-		$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?)", [$userID, $donorBadge["id"]]);
+		if (!$hasAlready) { // Add their supporter/premium badge
+			$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?)", [$userID, $donorBadge["id"]]);
+		}
 	}
 
 	// To finish off, let's give them permissions to edit their custom badge.
