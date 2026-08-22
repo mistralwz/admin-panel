@@ -2655,20 +2655,20 @@ class P
 			<td>Gamemode</td>
 			<td>
 			<select name="gm" class="selectpicker" data-width="100%">
-				<option value="-1">All</option>
 				<option value="0">osu!</option>
 				<option value="1">osu!taiko</option>
 				<option value="2">osu!catch</option>
 				<option value="3">osu!mania</option>
+				<option value="-1">All</option>
 			</select>';
 			echo '<tr>
 			<td>Akatsuki Mode</td>
 			<td>
 			<select name="rx" class="selectpicker" data-width="100%">
-				<option value="3">All</option>
 				<option value="0">Vanilla</option>
 				<option value="1">Relax</option>
 				<option value="2">Autopilot</option>
+				<option value="3">All</option>
 			</select>
 			</td>
 			</tr>';
