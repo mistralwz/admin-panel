@@ -1469,7 +1469,7 @@ class P
 			if ($_GET['id'] > 0) {
 				$badgeData = $GLOBALS['db']->fetch('SELECT * FROM badges WHERE id = ?', $_GET['id']);
 			} else {
-				$badgeData = ['id' => 0, 'name' => 'New Badge', 'icon' => ''];
+				$badgeData = ['id' => 0, 'name' => 'New Badge', 'icon' => '', 'colour' => ''];
 			}
 			// Check if this doc page exists
 			if (!$badgeData) {

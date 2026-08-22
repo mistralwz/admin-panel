@@ -427,25 +427,18 @@ class D
 				throw new Exception('Nice troll.');
 			}
 
-			// Check if we are creating or editing a doc page
+			// Check if we are creating or editing a badge
+			$colour = !empty($_POST['c']) ? $_POST['c'] : '';
 			if ($_POST['id'] == 0) {
-				if (empty($_POST['c'])) {
-					$GLOBALS['db']->execute('INSERT INTO badges (id, name, icon, colour) VALUES (NULL, ?, ?, NULL)', [$_POST['n'], $_POST['i']]);
-				} else {
-					$GLOBALS['db']->execute('INSERT INTO badges (id, name, icon, colour) VALUES (NULL, ?, ?, ?)', [$_POST['n'], $_POST['i'], $_POST['c']]);
-				}
+				$GLOBALS['db']->execute('INSERT INTO badges (id, name, icon, colour) VALUES (NULL, ?, ?, ?)', [$_POST['n'], $_POST['i'], $colour]);
 			} else {
-				if (empty($_POST['c'])) {
-					$GLOBALS['db']->execute('UPDATE badges SET name = ?, icon = ?, colour = NULL WHERE id = ? LIMIT 1', [$_POST['n'], $_POST['i'], $_POST['id']]);
-				} else {
-					$GLOBALS['db']->execute('UPDATE badges SET name = ?, icon = ?, colour = ? WHERE id = ? LIMIT 1', [$_POST['n'], $_POST['i'], $_POST['c'], $_POST['id']]);
-				}
+				$GLOBALS['db']->execute('UPDATE badges SET name = ?, icon = ?, colour = ? WHERE id = ? LIMIT 1', [$_POST['n'], $_POST['i'], $colour, $_POST['id']]);
 			}
 			// RAP log
 			postWebhookMessage(sprintf("has %s badge %s.\n\n> :gear: [View all badges](https://old.akatsuki.gg/index.php?p=108) on **Admin Panel**", $_POST['id'] == 0 ? "created" : "edited", $_POST["n"]));
 			rapLog(sprintf("has %s badge %s", $_POST['id'] == 0 ? "created" : "edited", $_POST["n"]));
 			// Done, redirect to success page
-			redirect('index.php?p=108&s=Badge edited!');
+			redirect('index.php?p=108&s=Badge ' . ($_POST['id'] == 0 ? 'created!' : 'edited!'));
 		} catch (Exception $e) {
 			// Redirect to Exception page
 			redirect('index.php?p=108&e=' . $e->getMessage());
