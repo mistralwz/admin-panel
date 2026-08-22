@@ -555,11 +555,7 @@ class D
 			redirectBack('index.php?p=102', $msg);
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			if (isset($_POST["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e=' . $e->getMessage());
-			} else {
-				redirectBack('index.php?p=102', '', $e->getMessage());
-			}
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1043,11 +1039,7 @@ class D
 			redirectBack('index.php?p=102', 'User restricted/unrestricted!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			if (isset($_POST["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e=' . $e->getMessage());
-			} else {
-				redirectBack('index.php?p=102', '', $e->getMessage());
-			}
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1094,18 +1086,10 @@ class D
 			postWebhookMessage(sprintf("has %s user [%s](https://akatsuki.gg/u/%s).\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $msg, $userData["username"], $_GET['id'], $_GET['id']));
 			rapLog(sprintf("has %s user %s", $msg, $userData["username"]));
 			// Done, redirect to success page
-			if (isset($_GET["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&s=User ' . $msg . '!');
-			} else {
-				redirect('index.php?p=102&s=User ' . $msg . '!');
-			}
+			redirectBack('index.php?p=102', 'User ' . $msg . '!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			if (isset($_GET["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e=' . $e->getMessage());
-			} else {
-				redirectBack('index.php?p=102', '', $e->getMessage());
-			}
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1326,7 +1310,7 @@ class D
 			}
 			redirect("index.php?p=102&s=User account has been deleted");
 		} catch (Exception $e) {
-			redirectBack('index.php?p=102', '', $e->getMessage());
+			redirect('index.php?p=102&e=' . $e->getMessage());
 		}
 	}
 

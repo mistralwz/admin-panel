@@ -75,8 +75,9 @@ function redirect($url)
 
 function redirectBack($defaultUrl, $success = '', $error = '')
 {
-	$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-	$target = (!empty($referer)) ? stripSuccessError($referer) : $defaultUrl;
+	$referer = $_SERVER['HTTP_REFERER'] ?? '';
+	$host = parse_url($referer, PHP_URL_HOST);
+	$target = ($referer && (!$host || $host === ($_SERVER['HTTP_HOST'] ?? ''))) ? stripSuccessError($referer) : $defaultUrl;
 	$sep = (strpos($target, '?') !== false) ? '&' : '?';
 	if (!empty($success)) {
 		$target .= $sep . 's=' . urlencode($success);
@@ -1603,6 +1604,8 @@ function giveDonor($userID, $months, $add = true, $premium = false)
 		if (!$hasAlready) { // Add their supporter/premium badge
 			$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?)", [$userID, $donorBadge["id"]]);
 		}
+	} else {
+		error_log("giveDonor: donor badge not found in database for user " . $userID);
 	}
 
 	// To finish off, let's give them permissions to edit their custom badge.
