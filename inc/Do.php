@@ -172,10 +172,10 @@ class D
 			postWebhookMessage(sprintf("has edited [%s](https://akatsuki.gg/u/%s)\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $_POST["u"], $_POST['id'], $_POST['id']));
 			rapLog(sprintf("has edited user %s", $_POST["u"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User edited!');
+			redirectBack('index.php?p=102', 'User edited!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -222,7 +222,7 @@ class D
 			redirect('index.php?p=102&s=User banned/unbanned/activated!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -247,7 +247,7 @@ class D
 			redirect('index.php?p=103&id=' . $id);
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -323,10 +323,10 @@ class D
 			postWebhookMessage(sprintf("has changed [%s](https://akatsuki.gg/u/%s)'s username to [%s](https://akatsuki.gg/u/%s).\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $_POST["oldu"], $_POST["id"], $trimmedName, $_POST["id"], $_POST["id"]));
 			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
+			redirectBack('index.php?p=102', 'User identity changed! It might take a while to change the username if the user is online on Bancho.');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -366,10 +366,10 @@ class D
 			postWebhookMessage(sprintf("has changed [%s](https://akatsuki.gg/u/%s)'s whitelist to %s.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $targetUsername, $_POST["id"], $_POST['newwhitelist'], $_POST["id"]));
 			rapLog(sprintf("has changed %s's whitelist to %s", $targetUsername, $_POST["newwhitelist"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User whitelist changed! It might take a while to change the whitelist if the user is online on Bancho.');
+			redirectBack('index.php?p=102', 'User whitelist changed! It might take a while to change the whitelist if the user is online on Bancho.');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -408,10 +408,10 @@ class D
 			appendNotes($_POST["id"], sprintf("Email address changed by admin '%s' (%s)", $_SESSION["username"], $_SESSION["userid"]));
 
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User email address changed!');
+			redirectBack('index.php?p=102', 'User email address changed!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -555,17 +555,13 @@ class D
 				rapLog(sprintf("has removed %s's silence", $_POST['u']));
 				$msg = 'User silence removed!';
 			}
-			if (isset($_POST["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&s=' . $msg);
-			} else {
-				redirect('index.php?p=102&s=' . $msg);
-			}
+			redirectBack('index.php?p=102', $msg);
 		} catch (Exception $e) {
 			// Redirect to Exception page
 			if (isset($_POST["resend"])) {
 				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e=' . $e->getMessage());
 			} else {
-				redirect('index.php?p=102&e=' . $e->getMessage());
+				redirectBack('index.php?p=102', '', $e->getMessage());
 			}
 		}
 	}
@@ -597,10 +593,10 @@ class D
 			postWebhookMessage(sprintf("has kicked [%s](https://akatsuki.gg/u/%s) from the server.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", getUserUsername($id), $id, $id));
 			rapLog(sprintf("has kicked %s from the server", getUserUsername($id)));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User kicked!');
+			redirectBack('index.php?p=102', 'User kicked!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -625,10 +621,10 @@ class D
 			postWebhookMessage(sprintf("has reset [%s](https://akatsuki.gg/u/%s)'s Avatar\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", getUserUsername($_GET['id']), $_GET['id'], $_GET['id']));
 			rapLog(sprintf("has reset %s's Avatar", getUserUsername($_GET['id'])));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=Avatar reset!');
+			redirectBack('index.php?p=102', 'Avatar reset!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -868,9 +864,9 @@ class D
 				$wipeText = "Relax";
 			}
 
-			redirect('index.php?p=102&s=User ' . $wipeText . ' scores and stats have been wiped!');
+			redirectBack('index.php?p=102', 'User ' . $wipeText . ' scores and stats have been wiped!');
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1038,17 +1034,13 @@ class D
 			}
 
 			// Done, redirect to success page
-			if (isset($_POST["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&s=User restricted/unrestricted!');
-			} else {
-				redirect('index.php?p=102&s=User restricted/unrestricted!');
-			}
+			redirectBack('index.php?p=102', 'User restricted/unrestricted!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
 			if (isset($_POST["resend"])) {
 				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e=' . $e->getMessage());
 			} else {
-				redirect('index.php?p=102&e=' . $e->getMessage());
+				redirectBack('index.php?p=102', '', $e->getMessage());
 			}
 		}
 	}
@@ -1106,7 +1098,7 @@ class D
 			if (isset($_GET["resend"])) {
 				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e=' . $e->getMessage());
 			} else {
-				redirect('index.php?p=102&e=' . $e->getMessage());
+				redirectBack('index.php?p=102', '', $e->getMessage());
 			}
 		}
 	}
@@ -1164,18 +1156,10 @@ class D
 			}
 
 			// Done, redirect to success page
-			if (isset($_POST["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&s=User banned/unbanned!');
-			} else {
-				redirect('index.php?p=102&s=User banned/unbanned!');
-			}
+			redirectBack('index.php?p=102', 'User banned/unbanned!');
 		} catch (Exception $e) {
 			// Redirect to Exception page
-			if (isset($_POST["resend"])) {
-				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e=' . $e->getMessage());
-			} else {
-				redirect('index.php?p=102&e=' . $e->getMessage());
-			}
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1196,14 +1180,14 @@ class D
 			if ($_POST["stype"] == 1) {
 				postWebhookMessage(sprintf("has given [%s](https://akatsuki.gg/u/%s) %s month(s) of [**Premium**](https://akatsuki.gg/premium) :credit_card:.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $username, $_POST["id"], $_POST["m"], $_POST["id"]));
 				rapLog(sprintf("has given %s (%s) %s month(s) of premium", $username, $_POST["id"], $_POST["m"]), $_SESSION["userid"]);
-				redirect("index.php?p=102&s=Premium status changed. Premium for that user now expires in " . $months . " months!");
+				redirectBack("index.php?p=102", "Premium status changed. Premium for that user now expires in " . $months . " months!");
 			} else {
 				postWebhookMessage(sprintf("has given [%s](https://akatsuki.gg/u/%s) %s month(s) of [**Supporter**](https://akatsuki.gg/supporter) :blue_heart:.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $username, $_POST["id"], $_POST["m"], $_POST["id"]));
 				rapLog(sprintf("has given %s (%s) %s month(s) of supporter", $username, $_POST["id"], $_POST["m"]), $_SESSION["userid"]);
-				redirect("index.php?p=102&s=Supporter status changed. Supporter for that user now expires in " . $months . " months!");
+				redirectBack("index.php?p=102", "Supporter status changed. Supporter for that user now expires in " . $months . " months!");
 			}
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1227,9 +1211,9 @@ class D
 
 			postWebhookMessage(sprintf("has removed [%s](https://akatsuki.gg/u/%s)'s Supporter/Premium.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $username, $_GET["id"], $_GET["id"]));
 			rapLog(sprintf("has removed %s's donation status", $username), $_SESSION["userid"]);
-			redirect("index.php?p=102&s=Supporter status changed!");
+			redirectBack("index.php?p=102", "Supporter status changed!");
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1279,9 +1263,9 @@ class D
 
 			postWebhookMessage(sprintf("has rolled back %s [%s](https://akatsuki.gg/u/%s)'s account.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $rollbackString, $username, $_POST["id"], $_POST['id']));
 			rapLog(sprintf("has rolled back %s %s's account", $rollbackString, $username), $_SESSION["userid"]);
-			redirect("index.php?p=102&s=User account has been rolled back!");
+			redirectBack("index.php?p=102", "User account has been rolled back!");
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1308,9 +1292,9 @@ class D
 
 			postWebhookMessage(sprintf("has %s custom badge privilege on [%s](https://akatsuki.gg/u/%s)'s account.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $grantRevoke, $username, $_GET["id"], $_GET["id"]));
 			rapLog(sprintf("has %s custom badge privilege on %s's account", $grantRevoke, $username), $_SESSION["userid"]);
-			redirect("index.php?p=102&s=Custom badge privilege " . $grantRevoke . "!");
+			redirectBack("index.php?p=102", "Custom badge privilege " . $grantRevoke . "!");
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1336,7 +1320,7 @@ class D
 			}
 			redirect("index.php?p=102&s=User account has been deleted");
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1362,9 +1346,9 @@ class D
 			$GLOBALS["db"]->execute("UPDATE users SET userpage_allowed = ? WHERE id = ? LIMIT 1", [$can, $_GET["id"]]);
 
 			rapLog(sprintf("has %s userpage on %s's account", $grantRevoke, $username), $_SESSION["userid"]);
-			redirect("index.php?p=102&s=Userpage revoked/granted!");
+			redirectBack("index.php?p=102", "Userpage revoked/granted!");
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1393,9 +1377,9 @@ class D
 
 			postWebhookMessage(sprintf("has %s [%s](https://akatsuki.gg/u/%s)'s account.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", $lockUnlock, $userData["username"], $_GET["id"], $_GET["id"]));
 			rapLog(sprintf("has %s %s's account", $lockUnlock, $userData["username"]), $_SESSION["userid"]);
-			redirect("index.php?p=102&s=User " . $lockUnlock . "!");
+			redirectBack("index.php?p=102", "User " . $lockUnlock . "!");
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 
@@ -1510,9 +1494,9 @@ class D
 			$GLOBALS["db"]->execute("DELETE FROM hw_user WHERE userid = ?", [$_GET["id"]]);
 			postWebhookMessage(sprintf("has cleared [%s](https://akatsuki.gg/u/%s)'s **HWID matches**.\n\n> :bust_in_silhouette: [View this user](https://old.akatsuki.gg/index.php?p=103&id=%s) on **Admin Panel**", getUserUsername($_GET["id"]), $_GET["id"], $_GET["id"]));
 			rapLog(sprintf("has cleared %s's HWID matches.", getUserUsername($_GET["id"])));
-			redirect('index.php?p=102&s=HWID matches cleared! Make sure to clear HWID of ONLY the multi-accounts (NOT THE MAIN ACCOUNT), as we don\'t want to lose that data!!');
+			redirectBack('index.php?p=102', 'HWID matches cleared! Make sure to clear HWID of ONLY the multi-accounts (NOT THE MAIN ACCOUNT), as we don\'t want to lose that data!!');
 		} catch (Exception $e) {
-			redirect('index.php?p=102&e=' . $e->getMessage());
+			redirectBack('index.php?p=102', '', $e->getMessage());
 		}
 	}
 

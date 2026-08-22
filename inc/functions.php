@@ -73,6 +73,19 @@ function redirect($url)
 	exit();
 }
 
+function redirectBack($defaultUrl, $success = '', $error = '')
+{
+	$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+	$target = (!empty($referer)) ? stripSuccessError($referer) : $defaultUrl;
+	$sep = (strpos($target, '?') !== false) ? '&' : '?';
+	if (!empty($success)) {
+		$target .= $sep . 's=' . urlencode($success);
+	} elseif (!empty($error)) {
+		$target .= $sep . 'e=' . urlencode($error);
+	}
+	redirect($target);
+}
+
 
 /*
  * outputVariable
@@ -1454,11 +1467,19 @@ function updateSilenceBancho($userID)
 
 function stripSuccessError($url)
 {
+	if (empty($url)) {
+		return 'index.php?p=102';
+	}
 	$parts = parse_url($url);
-	parse_str($parts['query'], $query);
-	unset($query["e"]);
-	unset($query["s"]);
-	return $parts["path"] . "?" .  http_build_query($query);
+	$path = isset($parts["path"]) ? $parts["path"] : "index.php";
+	$query = [];
+	if (isset($parts['query']) && !empty($parts['query'])) {
+		parse_str($parts['query'], $query);
+		unset($query["e"]);
+		unset($query["s"]);
+	}
+	$qs = http_build_query($query);
+	return $path . ($qs ? "?" . $qs : "");
 }
 
 function appendNotes($userID, $notes, $addNl = true, $addTimestamp = true)
